@@ -806,7 +806,7 @@ FBoxSphereBounds UGFurComponent::CalcBounds(const FTransform& LocalToWorld) cons
 			return MasterBounds;
 		}
 		FBoxSphereBounds DummyBounds = SkeletalGrowMesh->GetBounds();
-		DummyBounds = DummyBounds.ExpandBy(FMath::Max(FurLength, 0.001f));
+		TempBounds = DummyBounds.ExpandBy(FMath::Max(FurLength, 0.001f));
 		return DummyBounds.TransformBy(LocalToWorld);
 	}
 	else if (StaticGrowMesh)
