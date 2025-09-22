@@ -686,7 +686,7 @@ void FFurSkinVertexFactoryBase<MorphTargets, Physics, ExtraInfluences>::FShaderD
 			Buffer.VertexBufferRHI =  RHICmdList.CreateVertexBuffer(VectorArraySize, (BUF_Dynamic | BUF_ShaderResource), CreateInfo);
 			Buffer.VertexBufferSRV = RHICmdList.CreateShaderResourceView(Buffer.VertexBufferRHI, sizeof(FVector4f), PF_A32B32G32R32F);
 
-			*CurrentBoneBuffer = Buffer;
+			*CurrentBoneBuffer = MoveTemp(Buffer);
 			check(IsValidRef(*CurrentBoneBuffer));
 		}
 
@@ -701,7 +701,7 @@ void FFurSkinVertexFactoryBase<MorphTargets, Physics, ExtraInfluences>::FShaderD
 			Buffer.VertexBufferRHI = RHICmdList.CreateVertexBuffer(OffsetArraySize, (BUF_Dynamic | BUF_ShaderResource), CreateInfo);
 			Buffer.VertexBufferSRV = RHICmdList.CreateShaderResourceView(Buffer.VertexBufferRHI, sizeof(FVector4f), PF_A32B32G32R32F);
 
-			*CurrentBoneFurOffsetsBuffer = Buffer;
+			*CurrentBoneFurOffsetsBuffer = MoveTemp(Buffer);
 			check(IsValidRef(*CurrentBoneFurOffsetsBuffer));
 		}
 
@@ -811,7 +811,7 @@ void FFurSkinVertexFactoryBase<MorphTargets, Physics, ExtraInfluences>::FShaderD
 			Buffer.VertexBufferRHI = RHICmdList.CreateVertexBuffer(VectorArraySize, (BUF_Dynamic | BUF_ShaderResource), CreateInfo);
 			Buffer.VertexBufferSRV = RHICmdList.CreateShaderResourceView(Buffer.VertexBufferRHI, sizeof(FVector4f), PF_A32B32G32R32F);
 
-			*CurrentBoneBuffer = Buffer;
+			*CurrentBoneBuffer = MoveTemp(Buffer);
 			check(IsValidRef(*CurrentBoneBuffer));
 		}
 
@@ -826,7 +826,7 @@ void FFurSkinVertexFactoryBase<MorphTargets, Physics, ExtraInfluences>::FShaderD
 			Buffer.VertexBufferRHI = RHICmdList.CreateVertexBuffer(VectorArraySize, (BUF_Dynamic | BUF_ShaderResource), CreateInfo);
 			Buffer.VertexBufferSRV = RHICmdList.CreateShaderResourceView(Buffer.VertexBufferRHI, sizeof(FVector4f), PF_A32B32G32R32F);
 
-			*PreviousBoneBuffer = Buffer;
+			*PreviousBoneBuffer = MoveTemp(Buffer);
 			check(IsValidRef(*PreviousBoneBuffer));
 		}
 
@@ -841,7 +841,7 @@ void FFurSkinVertexFactoryBase<MorphTargets, Physics, ExtraInfluences>::FShaderD
 			Buffer.VertexBufferRHI = RHICmdList.CreateVertexBuffer(OffsetArraySize, (BUF_Dynamic | BUF_ShaderResource), CreateInfo);
 			Buffer.VertexBufferSRV = RHICmdList.CreateShaderResourceView(Buffer.VertexBufferRHI, sizeof(FVector4f), PF_A32B32G32R32F);
 
-			*CurrentBoneFurOffsetsBuffer = Buffer;
+			*CurrentBoneFurOffsetsBuffer = MoveTemp(Buffer);
 			check(IsValidRef(*CurrentBoneFurOffsetsBuffer));
 		}
 
@@ -856,7 +856,7 @@ void FFurSkinVertexFactoryBase<MorphTargets, Physics, ExtraInfluences>::FShaderD
 			Buffer.VertexBufferRHI = RHICmdList.CreateVertexBuffer(OffsetArraySize, (BUF_Dynamic | BUF_ShaderResource), CreateInfo);
 			Buffer.VertexBufferSRV = RHICmdList.CreateShaderResourceView(Buffer.VertexBufferRHI, sizeof(FVector4f), PF_A32B32G32R32F);
 
-			*PreviousBoneFurOffsetsBuffer = Buffer;
+			*PreviousBoneFurOffsetsBuffer = MoveTemp(Buffer);
 			check(IsValidRef(*PreviousBoneFurOffsetsBuffer));
 		}
 	}
