@@ -795,26 +795,28 @@ void UGFurComponent::TickComponent(float DeltaTime, enum ELevelTick TickType, FA
 
 FBoxSphereBounds UGFurComponent::CalcBounds(const FTransform& LocalToWorld) const
 {
+	FBoxSphereBounds TempBounds;
+
 	if (SkeletalGrowMesh)
 	{
 		if (MasterPoseComponent.IsValid())
 		{
 			FBoxSphereBounds MasterBounds = MasterPoseComponent->CalcBounds(LocalToWorld);
-			MasterBounds.ExpandBy(FMath::Max(FurLength, 0.001f));
+			TempBounds = MasterBounds.ExpandBy(FMath::Max(FurLength, 0.001f));
 			return MasterBounds;
 		}
 		FBoxSphereBounds DummyBounds = SkeletalGrowMesh->GetBounds();
-		DummyBounds.ExpandBy(FMath::Max(FurLength, 0.001f));
+		DummyBounds = DummyBounds.ExpandBy(FMath::Max(FurLength, 0.001f));
 		return DummyBounds.TransformBy(LocalToWorld);
 	}
 	else if (StaticGrowMesh)
 	{
 		FBoxSphereBounds MeshBounds = StaticGrowMesh->GetBounds();
-		MeshBounds.ExpandBy(FMath::Max(FurLength, 0.001f));
+		TempBounds = MeshBounds.ExpandBy(FMath::Max(FurLength, 0.001f));
 		return MeshBounds.TransformBy(LocalToWorld);
 	}
 	FBoxSphereBounds DummyBounds = FBoxSphereBounds(FVector(0, 0, 0), FVector(0, 0, 0), 0);
-	DummyBounds.ExpandBy(FMath::Max(FurLength, 0.001f));
+	TempBounds = DummyBounds.ExpandBy(FMath::Max(FurLength, 0.001f));
 	return DummyBounds.TransformBy(LocalToWorld);
 }
 
