@@ -7,12 +7,15 @@
 #include "Runtime/Engine/Classes/Components/SkinnedMeshComponent.h"
 #include "Runtime/Engine/Classes/Animation/MorphTarget.h"
 #include "ShaderParameterUtils.h"
-
+// smallest blend weight for vertex anims
+extern const float MinMorphTargetBlendWeight;
+// largest blend weight for vertex anims
+extern const float MaxMorphTargetBlendWeight;
 void FFurMorphVertexBuffer::InitRHI(FRHICommandListBase& RHICmdList)
 {
 	// Create the buffer rendering resource
 	uint32 Size = NumVertices * sizeof(FMorphGPUSkinVertex);
-	FRHIResourceCreateInfo CreateInfo(L"FurMorphVertexBuffer");
+	FRHIResourceCreateInfo CreateInfo(TEXT("FurMorphVertexBuffer"));
 
 	EBufferUsageFlags Flags = BUF_Dynamic;
 

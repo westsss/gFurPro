@@ -108,9 +108,8 @@ private:
 	LAYOUT_FIELD(FShaderResourceParameter, BoneFurOffsets);
 	LAYOUT_FIELD(FShaderResourceParameter, PreviousBoneFurOffsets);
 };
-
-IMPLEMENT_TYPE_LAYOUT(FFurSkinVertexFactoryShaderParameters<true>)
-IMPLEMENT_TYPE_LAYOUT(FFurSkinVertexFactoryShaderParameters<false>)
+IMPLEMENT_TEMPLATE_TYPE_LAYOUT(template<>, FFurSkinVertexFactoryShaderParameters<true>)
+IMPLEMENT_TEMPLATE_TYPE_LAYOUT(template<>, FFurSkinVertexFactoryShaderParameters<false>)
 
 /** Vertex Factory */
 template<bool MorphTargets, bool Physics, bool bExtraInfluencesT>
@@ -118,9 +117,6 @@ class FFurSkinVertexFactoryBase : public FFurVertexFactory
 {
 
 	typedef FFurSkinVertexFactoryBase<MorphTargets, Physics, bExtraInfluencesT> This;
-	
-
-
 public:
 	struct FShaderDataType
 	{
@@ -155,7 +151,7 @@ public:
 
 		void ReleaseBoneData()
 		{
-			/*ensure(IsInRenderingThread());*/
+			ensure(IsInRenderingThread());
 
 			UniformBuffer.SafeRelease();
 
@@ -248,7 +244,7 @@ public:
 		// to support GetBoneBufferForWriting() and GetBoneBufferForReading()
 		// @param bPrevious true:previous, false:current
 		// @param FrameNumber usually from View.Family->FrameNumber
-		// @return might not pass the IsValid() 
+		// @return might not pass the IsValid()
 		const FVertexBufferAndSRV& GetBoneBufferInternal(bool bPrevious) const
 		{
 			check(IsInParallelRenderingThread());
@@ -305,13 +301,12 @@ public:
 	template<EStaticMeshVertexTangentBasisType TangentBasisTypeT, EStaticMeshVertexUVType UVTypeT>
 	void Init(const FFurVertexBuffer* VertexBuffer, const FVertexBuffer* MorphVertexBuffer, uint32 BoneCount)
 	{
-		typedef FFurSkinVertex<TangentBasisTypeT, UVTypeT, bExtraInfluencesT> VertexType;
 		ShaderData.Init(BoneCount);
 		ENQUEUE_RENDER_COMMAND(InitProceduralMeshVertexFactory)
 			([this, VertexBuffer, MorphVertexBuffer](FRHICommandListImmediate& RHICmdList) {
 				const auto TangentElementType = TStaticMeshVertexTangentTypeSelector<TangentBasisTypeT>::VertexElementType;
 				const auto UvElementType = UVTypeT == EStaticMeshVertexUVType::HighPrecision ? VET_Float2 : VET_Half2;
-
+				typedef FFurSkinVertex<TangentBasisTypeT, UVTypeT, bExtraInfluencesT> VertexType;
 				// Initialize the vertex factory's stream components.
 				FDataType NewData;
 				NewData.PositionComponent = STRUCTMEMBER_VERTEXSTREAMCOMPONENT(VertexBuffer, VertexType, Position, VET_Float3);
@@ -615,7 +610,7 @@ IMPLEMENT_VERTEX_FACTORY_TYPE(FFurSkinVertexFactory, "/Plugin/gFur/Private/GFurF
 
 enum
 {
-	// 256 works for real uniform buffers, emulated UB can support up to 75 
+	// 256 works for real uniform buffers, emulated UB can support up to 75
 	MAX_GPU_BONE_MATRICES_UNIFORMBUFFER = 256,
 };
 
@@ -650,7 +645,7 @@ void FFurSkinVertexFactoryBase<MorphTargets, Physics, ExtraInfluences>::FShaderD
 {
 	//class FRHICommandListBase* RHICmdList;
 	FRHICommandListBase& RHICmdList = FRHICommandListExecutor::GetImmediateCommandList();
-	
+
 	const uint32 NumBones = BoneMap.Num();
 	check(NumBones <= MaxGPUSkinBones);
 	float* ChunkMatrices = nullptr;
@@ -676,9 +671,11 @@ void FFurSkinVertexFactoryBase<MorphTargets, Physics, ExtraInfluences>::FShaderD
 		if (!IsValidRef(*CurrentBoneBuffer))
 		{
 			FVertexBufferAndSRV Buffer;
-			FRHIResourceCreateInfo CreateInfo(L"FurVertexBuffer");
+			FRHIResourceCreateInfo CreateInfo(TEXT("FurVertexBuffer"));
 			
 		
+
+
 
 			//Buffer.VertexBufferRHI = FRHICommandListBase::CreateVertexBuffer(VectorArraySize, (BUF_Dynamic | BUF_ShaderResource), CreateInfo);
 			//Buffer.VertexBufferSRV = RHICreateShaderResourceView(Buffer.VertexBufferRHI, sizeof(FVector4f), PF_A32B32G32R32F);
@@ -694,13 +691,13 @@ void FFurSkinVertexFactoryBase<MorphTargets, Physics, ExtraInfluences>::FShaderD
 		if (!IsValidRef(*CurrentBoneFurOffsetsBuffer))
 		{
 			FVertexBufferAndSRV Buffer;
-			FRHIResourceCreateInfo CreateInfo(L"FurVertexBuffer");
+	
+			FRHIResourceCreateInfo CreateInfo(TEXT("FurVertexBuffer"));
 
 			//Buffer.VertexBufferRHI = RHICreateVertexBuffer(OffsetArraySize, (BUF_Dynamic | BUF_ShaderResource), CreateInfo);
 			//Buffer.VertexBufferSRV = RHICreateShaderResourceView(Buffer.VertexBufferRHI, sizeof(FVector4f), PF_A32B32G32R32F);
 			Buffer.VertexBufferRHI = RHICmdList.CreateVertexBuffer(OffsetArraySize, (BUF_Dynamic | BUF_ShaderResource), CreateInfo);
 			Buffer.VertexBufferSRV = RHICmdList.CreateShaderResourceView(Buffer.VertexBufferRHI, sizeof(FVector4f), PF_A32B32G32R32F);
-
 			*CurrentBoneFurOffsetsBuffer = MoveTemp(Buffer);
 			check(IsValidRef(*CurrentBoneFurOffsetsBuffer));
 		}
@@ -709,7 +706,8 @@ void FFurSkinVertexFactoryBase<MorphTargets, Physics, ExtraInfluences>::FShaderD
 		{
 			//ChunkMatrices = (float*)RHILockBuffer(CurrentBoneBuffer->VertexBufferRHI, 0, VectorArraySize, RLM_WriteOnly);
 			//Offsets = (FVector4f*)RHILockBuffer(CurrentBoneFurOffsetsBuffer->VertexBufferRHI, 0, OffsetArraySize, RLM_WriteOnly);
-			
+		
+
 			ChunkMatrices = (float*)RHICmdList.LockBuffer(CurrentBoneBuffer->VertexBufferRHI, 0, VectorArraySize, RLM_WriteOnly);
 			Offsets = (FVector4f*)RHICmdList.LockBuffer(CurrentBoneFurOffsetsBuffer->VertexBufferRHI, 0, OffsetArraySize, RLM_WriteOnly);
 		}
@@ -803,11 +801,12 @@ void FFurSkinVertexFactoryBase<MorphTargets, Physics, ExtraInfluences>::FShaderD
 		if (!IsValidRef(*CurrentBoneBuffer))
 		{
 			FVertexBufferAndSRV Buffer;
-			FRHIResourceCreateInfo CreateInfo(L"FurVertexBuffer");
+
+			FRHIResourceCreateInfo CreateInfo(TEXT("FurVertexBuffer"));
 
 			//Buffer.VertexBufferRHI = RHICreateVertexBuffer(VectorArraySize, (BUF_Dynamic | BUF_ShaderResource), CreateInfo);
 			//Buffer.VertexBufferSRV = RHICreateShaderResourceView(Buffer.VertexBufferRHI, sizeof(FVector4f), PF_A32B32G32R32F);
-			
+
 			Buffer.VertexBufferRHI = RHICmdList.CreateVertexBuffer(VectorArraySize, (BUF_Dynamic | BUF_ShaderResource), CreateInfo);
 			Buffer.VertexBufferSRV = RHICmdList.CreateShaderResourceView(Buffer.VertexBufferRHI, sizeof(FVector4f), PF_A32B32G32R32F);
 
@@ -819,7 +818,8 @@ void FFurSkinVertexFactoryBase<MorphTargets, Physics, ExtraInfluences>::FShaderD
 		if (!IsValidRef(*PreviousBoneBuffer))
 		{
 			FVertexBufferAndSRV Buffer;
-			FRHIResourceCreateInfo CreateInfo(L"FurVertexBuffer");
+
+			FRHIResourceCreateInfo CreateInfo(TEXT("FurVertexBuffer"));
 
 			//Buffer.VertexBufferRHI = RHICreateVertexBuffer(VectorArraySize, (BUF_Dynamic | BUF_ShaderResource), CreateInfo);
 			//Buffer.VertexBufferSRV = RHICreateShaderResourceView(Buffer.VertexBufferRHI, sizeof(FVector4f), PF_A32B32G32R32F);
@@ -834,7 +834,7 @@ void FFurSkinVertexFactoryBase<MorphTargets, Physics, ExtraInfluences>::FShaderD
 		if (!IsValidRef(*CurrentBoneFurOffsetsBuffer))
 		{
 			FVertexBufferAndSRV Buffer;
-			FRHIResourceCreateInfo CreateInfo(L"FurVertexBuffer");
+			FRHIResourceCreateInfo CreateInfo(TEXT("FurVertexBuffer"));
 
 			//Buffer.VertexBufferRHI = RHICreateVertexBuffer(OffsetArraySize, (BUF_Dynamic | BUF_ShaderResource), CreateInfo);
 			//Buffer.VertexBufferSRV = RHICreateShaderResourceView(Buffer.VertexBufferRHI, sizeof(FVector4f), PF_A32B32G32R32F);
@@ -849,7 +849,8 @@ void FFurSkinVertexFactoryBase<MorphTargets, Physics, ExtraInfluences>::FShaderD
 		if (!IsValidRef(*PreviousBoneFurOffsetsBuffer))
 		{
 			FVertexBufferAndSRV Buffer;
-			FRHIResourceCreateInfo CreateInfo(L"FurVertexBuffer");
+	
+			FRHIResourceCreateInfo CreateInfo(TEXT("FurVertexBuffer"));
 
 			//Buffer.VertexBufferRHI = RHICreateVertexBuffer(OffsetArraySize, (BUF_Dynamic | BUF_ShaderResource), CreateInfo);
 			//Buffer.VertexBufferSRV = RHICreateShaderResourceView(Buffer.VertexBufferRHI, sizeof(FVector4f), PF_A32B32G32R32F);
@@ -1057,6 +1058,7 @@ FFurSkinData::~FFurSkinData()
 	if (SkeletalMesh)
 		SkeletalMesh->RemoveFromRoot();
 	for (USkeletalMesh* Mesh : GuideMeshes)
+
 		if (Mesh)
 			Mesh->RemoveFromRoot();
 #endif // WITH_EDITORONLY_DATA
@@ -1099,6 +1101,7 @@ void FFurSkinData::Set(int32 InFurLayerCount, int32 InLod, class UGFurComponent*
 	if (SkeletalMesh)
 		SkeletalMesh->RemoveFromRoot();
 	for (USkeletalMesh* Mesh : GuideMeshes)
+
 		if (Mesh)
 			Mesh->RemoveFromRoot();
 #endif // WITH_EDITORONLY_DATA
@@ -1326,6 +1329,7 @@ inline void FFurSkinData::BuildFur(const FSkeletalMeshLODRenderData& LodRenderDa
 			FurSection.NumBones = SourceSection.BoneMap.Num();
 		}
 		check(Idx <= (uint32)Indices.Num());
+
 		Indices.RemoveAt(Idx, Indices.Num() - Idx, EAllowShrinking::No);
 		IndexBuffer.Unlock();
 

@@ -139,12 +139,12 @@ public:
 	template<EStaticMeshVertexTangentBasisType TangentBasisTypeT, EStaticMeshVertexUVType UVTypeT>
 	void Init(const FFurVertexBuffer* VertexBuffer)
 	{
-		typedef FFurStaticVertex<TangentBasisTypeT, UVTypeT> VertexType;
 		ENQUEUE_RENDER_COMMAND(InitProceduralMeshVertexFactory)(
 			[VertexBuffer, this](FRHICommandListImmediate& RHICmdList) {
 				const auto TangentElementType = TStaticMeshVertexTangentTypeSelector<TangentBasisTypeT>::VertexElementType;
 				const auto UvElementType = UVTypeT == EStaticMeshVertexUVType::HighPrecision ? VET_Float2 : VET_Half2;
-
+				typedef FFurStaticVertex<TangentBasisTypeT, UVTypeT> VertexType;
+				
 				// Initialize the vertex factory's stream components.
 				FDataType NewData;
 				NewData.PositionComponent = STRUCTMEMBER_VERTEXSTREAMCOMPONENT(VertexBuffer, VertexType, Position, VET_Float3);

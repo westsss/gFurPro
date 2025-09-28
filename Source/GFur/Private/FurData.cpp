@@ -13,7 +13,7 @@ FFurVertexBuffer::~FFurVertexBuffer()
 
 void FFurVertexBuffer::InitRHI(FRHICommandListBase& RHICmdList)
 {
-	FRHIResourceCreateInfo CreateInfo(L"FurVertexBuffer");
+	FRHIResourceCreateInfo CreateInfo(TEXT("FurVertexBuffer"));
 
 
 	//VertexBufferRHI = RHICreateVertexBuffer(Size, BUF_Static, CreateInfo); DEPRECATED
@@ -44,7 +44,7 @@ void FFurVertexBuffer::Unlock()
 
 			if (Size != VertexBufferRHI->GetSize() || VertexBufferRHI->GetUsage() == BUF_Static)
 			{
-				FRHIResourceCreateInfo CreateInfo(L"FurVertexBuffer");
+				FRHIResourceCreateInfo CreateInfo(TEXT("FurVertexBuffer"));
 				//VertexBufferRHI = RHICreateVertexBuffer(Size, BUF_Dynamic, CreateInfo); DEPRECATED
 				VertexBufferRHI = RHICmdList.CreateVertexBuffer(Size, BUF_Dynamic, CreateInfo);
 
@@ -70,7 +70,7 @@ void FFurIndexBuffer::InitRHI(FRHICommandListBase& RHICmdList)
 	if (Indices.Num() == 0)
 		Indices.Add(0);
 
-	FRHIResourceCreateInfo CreateInfo(L"FurVertexBuffer");
+	FRHIResourceCreateInfo CreateInfo(TEXT("FurVertexBuffer"));
 	IndexBufferRHI = RHICmdList.CreateIndexBuffer(sizeof(int32), Indices.Num() * sizeof(int32), BUF_Static, CreateInfo);
 	// Write the indices to the index buffer.
 	void* Buffer = RHICmdList.LockBuffer(IndexBufferRHI, 0, Indices.Num() * sizeof(int32), RLM_WriteOnly);
@@ -98,7 +98,7 @@ void FFurIndexBuffer::Unlock()
 			uint32 Size = Indices.Num() * sizeof(int32);
 			if (Size != IndexBufferRHI->GetSize() || IndexBufferRHI->GetUsage() == BUF_Static)
 			{
-				FRHIResourceCreateInfo CreateInfo(L"FurVertexBuffer");
+				FRHIResourceCreateInfo CreateInfo(TEXT("FurVertexBuffer"));
 				IndexBufferRHI = RHICmdList.CreateIndexBuffer(sizeof(int32), Size, BUF_Dynamic, CreateInfo);
 			}
 
